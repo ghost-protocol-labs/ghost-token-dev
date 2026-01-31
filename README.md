@@ -1,185 +1,139 @@
-# 👻 Ghost Token (GHOST / GHST)
+# GHOST Token CLI (TypeScript)
 
-**Version:** v1.0.0-alpha
-**Status:** Authoritative Specification
+TypeScript CLI tools for deploying, interacting with, and managing the **GHOST Token** on the **Sui blockchain**.
 
-Ghost is a **cross-chain token system** deployed on **Solana** and **Sui**, designed with a strict separation between **devnet testing** and **mainnet production**.
-
-This repository contains **contracts, metadata, assets, and documentation** for both environments, with zero ambiguity and auditor-grade clarity.
+Native token for **Ghost Protocol** — cross-chain DeFi with AI governance.
 
 ---
 
-## 🌐 What “Cross-Chain” Means
+## ⚡ Features
 
-Ghost is **cross-chain by design**, not by bridge.
-
-* ✅ Same token **identity**, **symbol**, and **branding** across chains
-* ❌ No shared global supply (in v1.x)
-* ❌ No automatic mint/burn parity
-
-Each chain hosts a **native deployment** with **chain-specific parameters** (decimals, max supply, standards).
-
-This model is used by established assets such as **USDC**, **USDT**, and **WETH**.
+- **Transfer with fee**: 2.5% (60% burned, 40% to treasury)  
+- **Exempt addresses**: Skip transfer fees  
+- **Quarterly burn**: Permissionless, treasury must be ≥ 3,000,000 GHOST, caller gets ~1% reward  
+- **Admin actions**: Force burn, withdraw treasury, pause transfers, manage exemptions  
+- **Multi-network support**: Devnet, Testnet, Mainnet  
+- **TypeScript & Node 25+ ready**
 
 ---
 
-## 🧪 Devnet vs Mainnet
+## 🪙 Token Details
 
-### Devnet (Testing Only)
-
-| Chain         | Token | Purpose           |
-| ------------- | ----- | ----------------- |
-| Solana Devnet | GHST  | Faucet test token |
-| Sui Devnet    | GHST  | Faucet test token |
-
-**GHST** is:
-
-* Devnet-only
-* Never bridged
-* Never deployed to mainnet
-* Has **no monetary or market value**
+| Attribute               | Value                                |
+|-------------------------|--------------------------------------|
+| Symbol                  | GHOST                                |
+| Decimals                | 9                                     |
+| Total Supply            | 20,000,000,000 GHOST                 |
+| Transfer Fee            | 2.5% (sender pays)                   |
+| Fee Allocation          | 60% burned / 40% treasury            |
+| Treasury Quarterly Burn | ≥ 3,000,000 GHOST minimum            |
+| Admin Controls          | Pause, withdraw, force burn, manage exemptions |
 
 ---
 
-### Mainnet (Production)
+## 🛠️ CLI Setup
 
-| Chain          | Token       | Symbol |
-| -------------- | ----------- | ------ |
-| Solana Mainnet | Ghost Token | GHOST  |
-| Sui Mainnet    | Ghost Token | GHOST  |
+1. **Install dependencies**
 
-Mainnet tokens:
+```bash
+npm install
+````
 
-* Have fixed max supply per chain
-* Have **no faucet**
-* Are production assets
+2. **Build TypeScript**
 
----
-
-## 🪙 Token Parameters
-
-### GHOST — Solana Mainnet
-
-| Field      | Value          |
-| ---------- | -------------- |
-| Symbol     | GHOST          |
-| Decimals   | 9              |
-| Max Supply | 18,446,000,000 |
-| Standard   | SPL Token-2022 |
-| Faucet     | ❌ Disabled     |
-
----
-
-### GHOST — Sui Mainnet
-
-| Field      | Value          |
-| ---------- | -------------- |
-| Symbol     | GHOST          |
-| Decimals   | 18             |
-| Max Supply | 20,000,000,000 |
-| Faucet     | ❌ Disabled     |
-
-> ⚠️ Same symbol ≠ same decimals
-> ⚠️ Same symbol ≠ shared ledger
-
----
-
-## 🚰 Faucets (Devnet Only)
-
-### GHST Faucet Rules
-
-| Chain         | Claim Amount | Decimals | Availability |
-| ------------- | ------------ | -------- | ------------ |
-| Solana Devnet | 5,000 GHST   | 9        | ✅            |
-| Sui Devnet    | 5,000 GHST   | 18       | ✅            |
-
-* Open to developers, users, and testers
-* Cooldowns and rate limits apply
-* **No faucet exists on mainnet**
-
----
-
-## 🔒 Supply Model
-
-### Current Model (v1.x)
-
-* Independent max supply per chain
-* No automatic mint/burn parity
-* No bridge required
-
-This model is:
-
-* ✅ Safe
-* ✅ Auditable
-* ✅ Exchange-friendly
-
----
-
-### Future Model (v2+, Optional)
-
-A future hard-parity bridge would require:
-
-* Canonical mint chain
-* Lock/burn on source
-* Mint on destination
-* Strict supply accounting
-* Third-party audits
-
-🚫 **Not part of v1.0.0-alpha**
-
----
-
-## 📁 Repository Structure
-
-```
-ghost-token/
-├── assets/            # Token icons (SVG, PNG)
-├── metadata/          # Chain + network specific metadata
-├── sui/               # Sui Move packages
-│   ├── devnet/
-│   └── mainnet/
-├── solana/            # Solana configs & programs
-│   ├── devnet/
-│   └── mainnet/
-├── docs/              # Specifications & explanations
-├── scripts/           # Deployment helpers
-└── README.md
+```bash
+npm run build
 ```
 
-Each directory is **explicitly scoped**:
+3. **Configure networks** (`scripts/config/devnet.js`, `testnet.js`, `mainnet.js`)
 
-* GHST vs GHOST
-* Devnet vs Mainnet
-* Sui vs Solana
-
-No files are shared across environments where that could cause risk.
-
----
-
-## ⚠️ Devnet Disclaimer (Mandatory)
-
-**GHST is a devnet-only test token.**
-
-It has **no monetary value**, **no market value**, and **no guarantee of conversion** to mainnet GHOST.
-
-GHST exists strictly for:
-
-* Development
-* Testing
-* Demonstration
+```ts
+module.exports = {
+  PKG: "<PACKAGE_ID>",
+  TREASURY: "<TREASURY_OBJECT_ID>",
+  FEE_CONFIG: "<FEE_CONFIG_OBJECT_ID>",
+  EXEMPT_LIST: "<EXEMPT_LIST_OBJECT_ID>",
+  TREASURY_CAP: "<TREASURY_CAP_OBJECT_ID>",
+  ADMIN_CAP: "<ADMIN_CAP_OBJECT_ID>",
+  SENDER: "<YOUR_WALLET_ADDRESS>"
+};
+```
 
 ---
 
-## 📊 Final Token Matrix
+## 🚀 Usage
 
-| Token | Chain  | Network | Decimals | Max Supply |
-| ----- | ------ | ------- | -------- | ---------- |
-| GHST  | Solana | Devnet  | 9        | Test only  |
-| GHST  | Sui    | Devnet  | 18       | Test only  |
-| GHOST | Solana | Mainnet | 9        | 18.446B    |
-| GHOST | Sui    | Mainnet | 18       | 20.0B      |
+### Transfer Tokens
+
+```bash
+npm run transfer -- <network> <coin_id> <recipient>
+```
+
+### Fee-Exempt Transfer
+
+```bash
+npm run transfer:no-fee -- <network> <coin_id> <recipient>
+```
+
+### Quarterly Burn (≥ 3,000,000 GHOST)
+
+```bash
+npm run quarterly-burn -- <network>
+```
 
 ---
+
+## ⚙️ Admin Functions
+
+### Force Burn Treasury
+
+```bash
+npm run force-burn -- <network>
+```
+
+### Withdraw Treasury
+
+```bash
+npm run withdraw-treasury -- <network> <amount> <recipient>
+```
+
+### Pause / Unpause Transfers
+
+```bash
+npm run pause-transfers -- <network> <true|false>
+```
+
+### Manage Fee-Exempt Addresses
+
+```bash
+npm run add-exempt -- <network> <address>
+npm run remove-exempt -- <network> <address>
+```
+
+---
+
+## 📦 Build & Deploy
+
+```bash
+# Build TypeScript CLI
+npm run build
+
+# Deploy contract
+npm run deploy:devnet
+npm run deploy:testnet
+npm run deploy:mainnet
+```
+
+---
+
+## 🔒 Security Notes
+
+* Protect **AdminCap** and **TreasuryCap**
+* Use **multisig wallets** for production
+* Ensure treasury minimums for quarterly burn
+
+---
+
 
 ## 📎 Links
 
