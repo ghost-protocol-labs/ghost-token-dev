@@ -10,16 +10,25 @@ module ghost::ghost_token {
     use sui::bag::{Self, Bag};
     use sui::clock::{Self, Clock};
 
+    // ──────────────────────────────
+    // Token struct
+    // ──────────────────────────────
     public struct GHOST has drop {}
 
+    // ──────────────────────────────
+    // Constants
+    // ──────────────────────────────
     const DECIMALS: u8 = 9;
     const TOTAL_SUPPLY: u64 = 20_000_000_000_000_000_000; // 20B * 10^9
+    const TOTAL_FEE_BP: u64 = 250;    // 2.5%
+    const BURN_SHARE_BP: u64 = 6000;  // 60% of fee burned
+    const BURN_REWARD_BP: u64 = 100;  // 1% reward on quarterly burn
+    const MIN_BURN: u64 = 3_000_000_000_000; // 3M GHOST minimum
     const QUARTER_MS: u64 = 90 * 24 * 60 * 60 * 1000;
-    const MIN_BURN: u64 = 3_000_000_000_000; // 3M GHOST
-    const TOTAL_FEE_BP: u64 = 250;
-    const BURN_SHARE_BP: u64 = 6000; // 60%
-    const BURN_REWARD_BP: u64 = 100; // 1% reward
 
+    // ──────────────────────────────
+    // Shared objects
+    // ──────────────────────────────
     public struct Treasury has key {
         id: UID,
         balance: Balance<GHOST>,
@@ -35,11 +44,14 @@ module ghost::ghost_token {
 
     public struct ExemptList has key {
         id: UID,
-        exempt: Bag,
+        exempt: Bag, // address → true = fee exempt
     }
 
     public struct AdminCap has key, store { id: UID }
 
+    // ──────────────────────────────
+    // Events
+    // ──────────────────────────────
     public struct TransferWithFee has copy, drop {
         from: address,
         to: address,
@@ -57,7 +69,7 @@ module ghost::ghost_token {
     }
 
     public struct BurnSkipped has copy, drop {
-        reason: vector<u8>,
+        reason: vector<u8>, // "threshold"
         treasury_balance: u64,
         timestamp_ms: u64,
         caller: address,
@@ -78,10 +90,9 @@ module ghost::ghost_token {
         burn_share_bp: u64,
     }
 
-    // ──────────────────────────────────────────────────────────────
-    // Initialization with fixed supply
-    // ──────────────────────────────────────────────────────────────
-
+    // ──────────────────────────────
+    // Initialization
+    // ──────────────────────────────
     fun init(witness: GHOST, ctx: &mut TxContext) {
         let (treasury_cap, metadata) = coin::create_currency(
             witness,
@@ -131,24 +142,9 @@ module ghost::ghost_token {
         transfer::public_transfer(treasury_cap, tx_context::sender(ctx));
     }
 
-    // ──────────────────────────────────────────────────────────────
-    // Mint (TreasuryCap only, optional)
-    // ──────────────────────────────────────────────────────────────
-
-    public entry fun mint(
-        treasury_cap: &mut TreasuryCap<GHOST>,
-        amount: u64,
-        recipient: address,
-        ctx: &mut TxContext
-    ) {
-        let coin = coin::mint(treasury_cap, amount, ctx);
-        transfer::public_transfer(coin, recipient);
-    }
-
-    // ──────────────────────────────────────────────────────────────
-    // Transfer with fee
-    // ──────────────────────────────────────────────────────────────
-
+    // ──────────────────────────────
+    // Transfer
+    // ──────────────────────────────
     public entry fun transfer(
         coin: Coin<GHOST>,
         treasury: &mut Treasury,
@@ -160,7 +156,6 @@ module ghost::ghost_token {
         assert!(!treasury.paused, 0x1);
         let sender = tx_context::sender(ctx);
         let gross = coin::value(&coin);
-
         if (gross == 0) { transfer::public_transfer(coin, recipient); return; }
 
         let is_exempt = bag::contains(&exempt_list.exempt, sender);
@@ -185,10 +180,9 @@ module ghost::ghost_token {
         event::emit(TransferWithFee { from: sender, to: recipient, gross_amount: gross, fee_burned, fee_to_treasury: fee_treasury, net_amount: gross - (fee_burned + fee_treasury) });
     }
 
-    // ──────────────────────────────────────────────────────────────
-    // Quarterly burn
-    // ──────────────────────────────────────────────────────────────
-
+    // ──────────────────────────────
+    // Quarterly Burn
+    // ──────────────────────────────
     public entry fun quarterly_burn(
         treasury: &mut Treasury,
         treasury_cap: &mut TreasuryCap<GHOST>,
@@ -201,6 +195,7 @@ module ghost::ghost_token {
             event::emit(BurnSkipped { reason: b"threshold", treasury_balance: current, timestamp_ms: now, caller: tx_context::sender(ctx) });
             return;
         }
+
         let burn_balance = balance::split(&mut treasury.balance, current);
         let burn_coin = coin::from_balance(burn_balance, ctx);
         coin::burn(treasury_cap, burn_coin);
@@ -217,10 +212,9 @@ module ghost::ghost_token {
         event::emit(QuarterlyBurnExecuted { burned_amount: current, reward_amount: reward, caller: tx_context::sender(ctx), timestamp_ms: now });
     }
 
-    // ──────────────────────────────────────────────────────────────
-    // Admin functions: force burn, withdraw, pause, exemptions
-    // ──────────────────────────────────────────────────────────────
-
+    // ──────────────────────────────
+    // Admin functions
+    // ──────────────────────────────
     public entry fun admin_force_burn(
         _: &AdminCap,
         treasury: &mut Treasury,
