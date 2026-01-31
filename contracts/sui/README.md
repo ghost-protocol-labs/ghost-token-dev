@@ -1,154 +1,105 @@
-# **GHOST Token (Sui Move)**
+# Ghost Token Contract Documentation
 
-/sources/
-
-## **1️. Overview**
-
-**GHOST Token** is the native token of **Ghost Protocol**, a cross-chain DeFi platform with AI governance.
-
-**Key Highlights:**
-
-* **Fixed Supply:** 20,000,000,000 GHOST
-* **Decimals:** 9
-* **Transfer Fee:** 2.5% (sender pays)
-
-  * **60% burned immediately**
-  * **40% goes to the treasury**
-* **Quarterly Burn:** Treasury can be burned permissionlessly if ≥ 3,000,000 GHOST, caller rewarded ~1%
-* **Admin Controls:** Pause/unpause transfers, withdraw treasury, force burn, manage fee exemptions
-* **Multi-network ready:** Devnet, Testnet, Mainnet
+This folder contains the **Sui Move contracts** for the GHOST Token and its DAO governance.
 
 ---
 
-## **2️. Token Mechanics**
+## Hero Section / Tokenomics
 
-### **Transfer Fee Logic**
+### GHOST Token – Hero Summary
 
-1. Every transfer charges **2.5%** by default.
-2. **60% of the fee** is burned (reduces total supply).
-3. **40% of the fee** goes to the **treasury balance**.
-4. **Exempt addresses** can skip the fee entirely.
+* **Symbol:** GHOST
+* **Decimals:** 9
+* **Total Supply:** 20,000,000,000 GHOST (fixed)
+* **Transfer Fee:** 2.5% per transaction
 
-**Example:**
+  * **60% burned immediately**
+  * **40% sent to treasury**
+* **Quarterly Burn:** Treasury can be burned if ≥ 3,000,000 GHOST, caller receives ~1%
+* **Admin Controls:** Pause transfers, withdraw treasury, manage fee exemptions
+* **Multi-network Ready:** Devnet, Testnet, Mainnet
 
-* Transfer 1,000 GHOST → Fee 25 GHOST
+---
+
+## Contract Modules
+
+### 1. ghost_token.move
+
+* Implements the **GHOST token**.
+* Handles **minting, transfers, fees, treasury, and quarterly burn**.
+* Admin functions for **pausing transfers, forcing burns, managing fee-exempt addresses**.
+
+### 2. ghost_dao.move
+
+* Implements **DAO governance**.
+* Basic structure for **proposals, voting, and execution hooks**.
+* Can be extended to **token-weighted voting, quorum enforcement, and proposal lifecycle**.
+
+---
+
+## Key Structs
+
+| Struct       | Purpose                                                   |
+| ------------ | --------------------------------------------------------- |
+| `GHOST`      | Token type                                                |
+| `Treasury`   | Holds treasury balance, paused state, last burn timestamp |
+| `ExemptList` | Mapping of addresses exempt from fees                     |
+| `AdminCap`   | Authority for admin functions                             |
+| `Proposal`   | DAO proposals                                             |
+| `Dao`        | Holds vector of proposals                                 |
+
+---
+
+## Tokenomics Overview
+
+### Transfers
+
+* 2.5% fee on all transfers (unless sender is exempt)
+
+  * 60% burned, reducing supply
+  * 40% added to treasury
+* Example: Transfer 1,000 GHOST → 25 GHOST fee
 
   * Burn: 15 GHOST
   * Treasury: 10 GHOST
   * Recipient receives: 975 GHOST
 
----
+### Quarterly Burn
 
-### **Quarterly Burn**
+* Treasury balance must be ≥ 3,000,000 GHOST
+* Burns the **entire treasury balance**
+* Caller receives ~1% of the treasury
 
-* Any user or admin can trigger **`quarterly_burn`**.
-* Treasury balance must be ≥ **3,000,000 GHOST**.
-* Burns **entire treasury balance**.
-* Caller receives **~1% reward** from treasury.
-* Timestamp updated to track last burn.
+### Admin Controls
 
----
-
-### **Admin Functions**
-
-| Function            | Purpose                               |
-| ------------------- | ------------------------------------- |
-| `admin_force_burn`  | Force burn entire treasury anytime    |
-| `withdraw_treasury` | Withdraw specific GHOST from treasury |
-| `set_paused`        | Pause or unpause transfers            |
-| `add_exempt`        | Add address to fee-exempt list        |
-| `remove_exempt`     | Remove address from fee-exempt list   |
+* Pause or unpause transfers
+* Withdraw treasury
+* Force burn treasury
+* Add/remove fee-exempt addresses
 
 ---
 
-## **3️. Contract Structure**
+## Deployment Steps
 
-**Move module:** `ghost::ghost_token`
-
-**Key Structs:**
-
-* `GHOST` → Token type
-* `Treasury` → Holds treasury balance, paused state, last burn timestamp
-* `FeeConfig` → Holds transfer fee & burn split
-* `ExemptList` → Bag mapping addresses exempt from fees
-* `AdminCap` → Authority for admin functions
-
-**Key Entry Functions:**
-
-* `init` → Initializes contract, mints **20B GHOST** to deployer, sets up treasury and admin caps
-* `transfer` → Handles transfers with fees and optional burn/treasury split
-* `transfer_no_fee` → Free transfer for special cases
-* `quarterly_burn` → Burns treasury if ≥ 3M GHOST, rewards caller
-* Admin functions → Force burn, withdraw treasury, pause transfers, manage exemptions
+1. **Init Contract:** Deploy `ghost_token.move` and call `init`
+2. **Mint Supply:** Full supply sent to deployer/admin
+3. **Treasury & Admin Setup:** AdminCap and TreasuryCap created
+4. **DAO Deployment:** Deploy `ghost_dao.move` for proposal management
+5. **Wallet Integration:** Connect to scripts / SDK for CLI interactions
 
 ---
 
-## **4️. How it Works Step by Step**
+## Hero Graphic / Tokenomics (ASCII Concept)
 
-1. **Deployment:**
-
-   * Deployer calls `init` → receives full supply of **20B GHOST**
-   * Treasury and admin caps are created
-   * FeeConfig & ExemptList initialized
-
-2. **User Transfers:**
-
-   * Calls `transfer`
-   * Fee calculated → Burn portion destroyed, Treasury portion added
-   * Exempt addresses bypass fees
-
-3. **Quarterly Burn:**
-
-   * Anyone can call `quarterly_burn`
-   * Treasury balance checked (≥ 3M GHOST)
-   * Treasury is burned, caller rewarded
-
-4. **Admin Operations:**
-
-   * Admin can withdraw from treasury, pause transfers, or force burn
-
----
-
-## **5️. Example CLI Usage (TypeScript)**
-
-```bash
-# Transfer tokens
-npm run transfer -- devnet <coin_id> <recipient>
-
-# Trigger quarterly burn
-npm run quarterly-burn -- devnet
-
-# Force burn treasury (admin)
-npm run force-burn -- devnet
-
-# Pause transfers
-npm run pause-transfers -- devnet true
-
-# Add exempt address
-npm run add-exempt -- devnet 0x1234
 ```
-
----
-
-## **6️. Security Notes**
-
-* Use **multisig** for `AdminCap` in production
-* Protect treasury minimums to ensure quarterly burn can function
-* Avoid sending treasury funds to untrusted addresses
-
----
-
-## Ghost Network
-
-* Website: [https://ghostnetwork.fun](https://ghostnetwork.fun)
-* GitHub: [https://github.com/ghost-protocol-labs](https://github.com/ghost-protocol-labs)
-
----
-
-## **7️. License**
-
-MIT License – see LICENSE
-
-Built on **Sui Move**.
-
----
+      ________GHOST TOKEN HERO________
+     /                                  \
+    |  Total Supply: 20B GHOST           |
+    |  Transfer Fee: 2.5%                |
+    |    -> 60% Burned                   |
+    |    -> 40% Treasury                 |
+    |  Quarterly Burn: Treasury ≥ 3M     |
+    |    -> Caller Reward: 1%            |
+    |  Admin: Pause, Withdraw, Force Burn|
+     \__________________________________/
+```

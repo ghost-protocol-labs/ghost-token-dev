@@ -1,0 +1,10 @@
+[package]
+name = "ghost"
+version = "1.0.0"
+published-at = "0x615326bcb0896338ddefe033771f875a4565f649c8d70395da24318c72ac25de"
+
+[addresses]
+ghost = "0x615326bcb0896338ddefe033771f875a4565f649c8d70395da24318c72ac25de"
+
+[dependencies]
+Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "main" }

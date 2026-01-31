@@ -1,0 +1,32 @@
+{
+  "name": "GHOST Token",
+  "symbol": "GHOST",
+  "decimals": 9,
+  "description": "GHOST Token is the native asset of Ghost Protocol — a cross-chain DeFi platform with AI governance.",
+  "iconUrl": "https://raw.githubusercontent.com/ghost-protocol-labs/ghost-token-sui/refs/heads/main/assets/GHOST.svg",
+  "website": "https://ghostnetwork.fun",
+  "socials": {
+    "x": "https://x.com/ghostnetworkdotfun",
+    "telegram": "https://t.me/ghostprotocol_sol"
+  },
+  "supply": {
+    "type": "fixed",
+    "total": "20000000000"
+  },
+  "network": {
+    "blockchain": "sui",
+    "environments": ["devnet", "testnet", "mainnet"]
+  },
+  "features": {
+    "transferFeeBps": 250,
+    "burnSplit": {
+      "burnBps": 6000,
+      "treasuryBps": 4000
+    },
+    "quarterlyBurn": {
+      "minimumAmount": "3000000",
+      "callerRewardBps": 100
+    }
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,45 @@
+{
+  "name": "ghost-token-sui",
+  "version": "1.0.0-beta.1",
+  "description": "Ghost Protocol native token on Sui — cross-chain DeFi with AI governance.",
+  "main": "dist/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node src/index.ts",
+    "transfer": "ts-node scripts/transfer.ts",
+    "quarterly-burn": "ts-node scripts/quarterlyBurn.ts",
+    "force-burn": "ts-node scripts/forceBurn.ts",
+    "pause-transfers": "ts-node scripts/pauseTransfers.ts",
+    "manage-exempt": "ts-node scripts/manageExempt.ts",
+    "lint": "echo \"no lint configured\"",
+    "test": "echo \"no tests yet\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ghost-protocol-labs/ghost-token-sui.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ghost-protocol-labs/ghost-token-sui/issues"
+  },
+  "homepage": "https://github.com/ghost-protocol-labs/ghost-token-sui#readme",
+  "keywords": [
+    "sui",
+    "move",
+    "defi",
+    "dao",
+    "ghost",
+    "token"
+  ],
+  "author": "Ghost Network",
+  "license": "MIT",
+  "dependencies": {
+    "@mysten/sui": "^2.1.0",
+    "dotenv": "^17.2.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "ts-node": "^10.9.2",
+    "@types/node": "^25.1.0"
+  }
+}
