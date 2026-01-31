@@ -48,7 +48,7 @@ ghost-token-sui/
 │   ├── ghost_token.move
 │   ├── Move.toml
 │   └── resources/
-│       ├── ghost-logo-1000x1000.png
+│       ├── ghost.png
 │       └── metadata.json
 ├── scripts/
 │   ├── transfer.ts
