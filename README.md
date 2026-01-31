@@ -128,8 +128,8 @@ npm run remove-exempt -- devnet 0x1234
 
 * Token icon: `ipfs://Qm.../ghost.png`
 * Metadata file: `metadata.json`
-* Dashboard: `[Your dashboard URL here]`
-* Telegram: `[Your Telegram link here]`
+* Dashboard: `[]`
+* Telegram: `[]`
 
 ---
 
