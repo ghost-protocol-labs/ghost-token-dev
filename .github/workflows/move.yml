@@ -11,30 +11,39 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      # 1️⃣ Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '25'
+      # 2️⃣ Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '25'
 
-    - name: Install dependencies
-      run: pnpm install
+      # 3️⃣ Install dependencies (pnpm)
+      - name: Install dependencies
+        run: pnpm install
 
-    - name: Build TypeScript SDK
-      run: pnpm run build
+      # 4️⃣ Build TypeScript SDK
+      - name: Build TypeScript SDK
+        run: pnpm run build
 
-    - name: Install Sui CLI
-      run: |
-        curl -sSf https://apt.sui.io/install.sh | sh
-        export PATH="$HOME/.sui/bin:$PATH"
+      # 5️⃣ Lint TypeScript code
+      - name: Lint TypeScript
+        run: pnpm run lint
 
-    - name: Build Move Package
-      run: sui move build
+      # 6️⃣ Install Sui CLI
+      - name: Install Sui CLI
+        run: |
+          curl -sSf https://apt.sui.io/install.sh | sh
+          export PATH="$HOME/.sui/bin:$PATH"
+          sui --version
 
-    - name: Run Move Tests
-      run: sui move test
+      # 7️⃣ Build Move package
+      - name: Build Move Package
+        run: sui move build
 
-    - name: Lint TypeScript
-      run: pnpm run lint || true
+      # 8️⃣ Run Move tests
+      - name: Run Move Tests
+        run: sui move test

@@ -1,11 +1,10 @@
-#!/usr/bin/env ts-node
-import { forceBurn } from '../sdk/treasury';
-import { printLink } from '../sdk/suiscan';
+import { treasury } from "../sdk";
 
-async function main() {
-  await forceBurn();
-  console.log('💥 Force burn executed.');
-  printLink('GHOST_TREASURY');
-}
-
-main();
+(async () => {
+  try {
+    const digest = await treasury.forceBurnTreasury();
+    console.log("✅ Treasury force-burn executed. Tx digest:", digest);
+  } catch (err) {
+    console.error("❌ Force-burn failed:", err);
+  }
+})();

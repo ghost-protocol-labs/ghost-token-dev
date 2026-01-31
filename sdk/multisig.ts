@@ -1,31 +1,38 @@
-import { ghostAddresses } from './config';
-import { SuiClient, TransactionBlock } from '@mysten/sui';
+import { TransactionBlock } from "@mysten/sui";
+import { signer, ADMIN_CAP_OBJ, TREASURY_OBJ, GHOST_TOKEN } from "./ghost";
 
-const client = new SuiClient({ url: process.env.SUI_RPC });
-
-export async function setPaused(paused: boolean) {
+export async function setTransfersPaused(paused: boolean) {
   const tx = new TransactionBlock();
   tx.moveCall({
-    target: `${ghostAddresses.GHOST_TOKEN}::ghost_token::set_paused`,
-    arguments: [tx.pure(paused), tx.object(ghostAddresses.GHOST_TEAM)]
+    target: "ghost::ghost_token::set_paused",
+    arguments: [tx.object(ADMIN_CAP_OBJ), tx.object(TREASURY_OBJ), tx.pure(paused)],
   });
-  return client.signAndExecuteTransactionBlock({ transactionBlock: tx });
+  const result = await signer.signAndExecuteTransactionBlock({ transactionBlock: tx });
+  return result.digest;
 }
 
-export async function addExempt(address: string) {
+export async function addExempt(addr: string) {
   const tx = new TransactionBlock();
   tx.moveCall({
-    target: `${ghostAddresses.GHOST_TOKEN}::ghost_token::add_exempt`,
-    arguments: [tx.pure(address), tx.object(ghostAddresses.GHOST_TEAM)]
+    target: "ghost::ghost_token::add_exempt",
+    arguments: [tx.object(ADMIN_CAP_OBJ), tx.object(GHOST_TOKEN), tx.pure(addr)],
   });
-  return client.signAndExecuteTransactionBlock({ transactionBlock: tx });
+  const result = await signer.signAndExecuteTransactionBlock({ transactionBlock: tx });
+  return result.digest;
 }
 
-export async function removeExempt(address: string) {
+export async function removeExempt(addr: string) {
   const tx = new TransactionBlock();
   tx.moveCall({
-    target: `${ghostAddresses.GHOST_TOKEN}::ghost_token::remove_exempt`,
-    arguments: [tx.pure(address), tx.object(ghostAddresses.GHOST_TEAM)]
+    target: "ghost::ghost_token::remove_exempt",
+    arguments: [tx.object(ADMIN_CAP_OBJ), tx.object(GHOST_TOKEN), tx.pure(addr)],
   });
-  return client.signAndExecuteTransactionBlock({ transactionBlock: tx });
+  const result = await signer.signAndExecuteTransactionBlock({ transactionBlock: tx });
+  return result.digest;
+}
+
+export async function executeMultisigAction(actionName: string, params: any[]) {
+  console.log("Multisig action called:", actionName, params);
+  // TODO: integrate real Move multisig module
+  return "mock_tx_digest";
 }

@@ -1,18 +1,17 @@
-import { ghostAddresses } from './config';
-import { SuiClient, TransactionBlock } from '@mysten/sui';
-
-const client = new SuiClient({ url: process.env.SUI_RPC });
+import { TransactionBlock } from "@mysten/sui";
+import { signer, GHOST_TOKEN, TREASURY_OBJ } from "./ghost";
 
 export async function transferTokens(recipient: string, amount: bigint) {
   const tx = new TransactionBlock();
   tx.moveCall({
-    target: `${ghostAddresses.GHOST_TOKEN}::ghost_token::transfer`,
+    target: "ghost::ghost_token::transfer",
     arguments: [
-      tx.object(ghostAddresses.GHOST_TOKEN),
+      tx.pure(amount),
       tx.pure(recipient),
-      tx.object(ghostAddresses.GHOST_TREASURY),
-      tx.object(ghostAddresses.GHOST_TEAM)
-    ]
+      tx.object(TREASURY_OBJ),
+      tx.object(GHOST_TOKEN),
+    ],
   });
-  return client.signAndExecuteTransactionBlock({ transactionBlock: tx });
+  const result = await signer.signAndExecuteTransactionBlock({ transactionBlock: tx });
+  return result.digest;
 }

@@ -1,10 +1,11 @@
-#!/usr/bin/env ts-node
-import { quarterlyBurn, printLink } from '../sdk';
+import { treasury } from "../sdk";
 
-async function main() {
-  await quarterlyBurn();
-  console.log('🔥 Quarterly burn executed.');
-  printLink('GHOST_TREASURY');
-}
-
-main();
+(async () => {
+  try {
+    // Treasury object and Clock are internally provided in SDK
+    const digest = await treasury.quarterlyBurnTreasury();
+    console.log("✅ Quarterly burn executed. Tx digest:", digest);
+  } catch (err) {
+    console.error("❌ Quarterly burn failed:", err);
+  }
+})();

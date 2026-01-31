@@ -1,17 +1,25 @@
-#!/usr/bin/env ts-node
-import { addExempt, removeExempt } from '../sdk';
+import { multisig } from "../sdk";
 
-const action = process.argv[2]; // 'add' or 'remove'
-const address = process.argv[3];
+const action = process.argv[2]; // "add" | "remove"
+const addr = process.argv[3];
 
-if (!action || !address) throw new Error('Usage: npm run add-exempt/remove-exempt -- <add|remove> <address>');
-
-async function main() {
-  if (action === 'add') await addExempt(address);
-  else if (action === 'remove') await removeExempt(address);
-  else throw new Error('Invalid action. Use add or remove.');
-
-  console.log(`✅ ${action === 'add' ? 'Added' : 'Removed'} fee exempt: ${address}`);
+if (!action || !addr) {
+  console.error("Usage: ts-node manageExempt.ts <add|remove> <address>");
+  process.exit(1);
 }
 
-main();
+(async () => {
+  try {
+    let digest;
+    if (action === "add") {
+      digest = await multisig.addExempt(addr);
+    } else if (action === "remove") {
+      digest = await multisig.removeExempt(addr);
+    } else {
+      throw new Error("Invalid action. Use 'add' or 'remove'.");
+    }
+    console.log(`✅ ${action} exempt for ${addr}. Tx digest:`, digest);
+  } catch (err) {
+    console.error("❌ Exempt management failed:", err);
+  }
+})();

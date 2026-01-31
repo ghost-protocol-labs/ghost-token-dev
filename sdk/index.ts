@@ -1,10 +1,6 @@
-// sdk/index.ts
-// Main entry point for the Ghost Token SDK
-
-export * from './config';
-export * from './ghost';
-export * from './transfer';
-export * from './treasury';
-export * from './multisig';
-export * from './dao';
-export * from './suiscan';
+export * as ghost from "./ghost";
+export * as transfer from "./transfer";
+export * as treasury from "./treasury";
+export * as multisig from "./multisig";
+export * as dao from "./dao";
+export * as suiscan from "./suiscan";

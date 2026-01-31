@@ -1,13 +1,13 @@
-#!/usr/bin/env ts-node
-import { setPaused } from '../sdk';
+import { multisig } from "../sdk";
 
-const pausedArg = process.argv[2];
-if (pausedArg !== 'true' && pausedArg !== 'false') throw new Error('Usage: npm run pause-transfers -- <true|false>');
+const arg = process.argv[2];
+const paused = arg === "true";
 
-async function main() {
-  const paused = pausedArg === 'true';
-  await setPaused(paused);
-  console.log(`⏸ Transfers paused=${paused}`);
-}
-
-main();
+(async () => {
+  try {
+    const digest = await multisig.setTransfersPaused(paused);
+    console.log(`✅ Transfers ${paused ? "paused" : "unpaused"}. Tx digest:`, digest);
+  } catch (err) {
+    console.error("❌ Pause/unpause failed:", err);
+  }
+})();

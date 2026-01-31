@@ -1,12 +1,11 @@
-#!/usr/bin/env ts-node
-import 'dotenv/config';
-import { mintTokens, printLink } from '../sdk';
+import { ghost } from "../sdk";
 
-async function main() {
-  const totalSupply = 20_000_000_000n * 1_000_000_000n;
-  await mintTokens(totalSupply);
-  console.log('✅ Full supply minted.');
-  printLink('GHOST_TOKEN');
-}
-
-main();
+(async () => {
+  try {
+    console.log("Minting full GHOST supply...");
+    const digest = await ghost.executeMint(); // init() does not require arguments
+    console.log("✅ Mint successful. Transaction digest:", digest);
+  } catch (err) {
+    console.error("❌ Mint failed:", err);
+  }
+})();

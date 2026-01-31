@@ -50,7 +50,7 @@ module ghost::ghost_token {
     }
 
     /// =====================
-    /// INIT
+    /// INIT / MINT FULL SUPPLY
     /// =====================
     public entry fun init(ctx: &mut TxContext) {
         let (treasury_cap, metadata) = coin::create_currency<GHOST>(
@@ -58,20 +58,19 @@ module ghost::ghost_token {
             DECIMALS,
             b"GHOST",
             b"GHOST",
-            b"GHOST Token is the native asset of Ghost Protocol — a cross-chain DeFi platform with AI governance.\n\nWebsite: https://ghostnetwork.fun\nX: https://x.com/ghostnetworkdotfun\nTelegram: https://t.me/ghostprotocol_sol",
+            b"GHOST Token is the native asset of Ghost Protocol — cross-chain DeFi with AI governance.\n\nWebsite: https://ghostnetwork.fun\nX: https://x.com/ghostnetworkdotfun\nTelegram: https://t.me/ghostprotocol_sol",
             option::some(
                 b"https://raw.githubusercontent.com/ghost-protocol-labs/ghost-token-sui/refs/heads/main/assets/GHOST.svg"
             ),
             ctx
         );
 
-        // Freeze metadata for trust & immutability
+        // Freeze metadata
         coin::freeze_metadata(metadata);
 
-        // Mint full fixed supply
+        // Mint full supply to deployer
         let supply = coin::mint<GHOST>(TOTAL_SUPPLY, &mut treasury_cap, ctx);
 
-        // Treasury starts empty
         let treasury = Treasury {
             balance: coin::zero<GHOST>(ctx),
             paused: false,
@@ -84,25 +83,25 @@ module ghost::ghost_token {
 
         let admin = AdminCap {};
 
-        // Transfer assets
+        // Transfer objects to deployer
         transfer::public_transfer(supply, tx_context::sender(ctx));
         transfer::public_transfer(treasury_cap, tx_context::sender(ctx));
         transfer::public_transfer(admin, tx_context::sender(ctx));
 
-        // Share system objects
+        // Share system objects for global access
         transfer::share_object(treasury);
         transfer::share_object(exempt);
     }
 
     /// =====================
-    /// INTERNAL
+    /// INTERNAL HELPERS
     /// =====================
     fun is_exempt(exempt: &ExemptList, addr: address): bool {
         table::contains(&exempt.list, addr)
     }
 
     /// =====================
-    /// TRANSFER (WITH FEE)
+    /// TRANSFER WITH FEE
     /// =====================
     public entry fun transfer(
         coin_in: Coin<GHOST>,
@@ -157,7 +156,7 @@ module ghost::ghost_token {
     }
 
     /// =====================
-    /// ADMIN
+    /// ADMIN FUNCTIONS
     /// =====================
     public entry fun set_paused(
         _: &AdminCap,
